@@ -19,6 +19,8 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <!-- cr-java-0061 FIX: AWS SDK v2 version for Amazon S3 integration -->
+        <aws.sdk.version>2.25.27</aws.sdk.version>
     </properties>
 
     <dependencies>
@@ -30,6 +32,61 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
+
+        <!-- cr-java-0065 FIX: Spring Session Data Redis — transparently delegates all
+             HttpSession operations (setAttribute / getAttribute) to Amazon ElastiCache for
+             Redis. Enables stateless application instances with centralized, distributed
+             session management. All EC2 instances in the Auto Scaling group share the same
+             Redis-backed session store, eliminating server affinity and enabling safe
+             horizontal scaling. -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+            <version>2.7.4</version>
+        </dependency>
+        <!-- Spring Data Redis (Lettuce client) — required by Spring Session Data Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- cr-java-0061 FIX: AWS SDK v2 S3 client — replaces hard-coded local file paths
+             (/var/legacy/reports/ and C:\\ResortBackups\\nightly\\) with Amazon S3 object
+             storage so the application has no dependency on the host file system. -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+        <!-- AWS SDK v2 URL-connection HTTP client (no Netty/Apache required at runtime) -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>url-connection-client</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+
+        <!-- cr-java-0090 FIX: AWS SDK v2 Cognito Identity Provider client — replaces
+             file-based / local-hash authentication (original BookingService.java line 108)
+             with Amazon Cognito User Pool authentication. Provides centralized, encrypted,
+             and auditable authentication with built-in user lifecycle management and
+             JWT-based stateless tokens for distributed cloud environments. -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>cognitoidentityprovider</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+            <artifactId>secretsmanager</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+        <!-- cr-java-0071 FIX: AWS SDK v2 SSM client — retrieves hard-coded environment-specific
+             URLs (inventory service, report download base URL) from AWS Systems Manager Parameter
+             Store at runtime, enabling environment-agnostic deployments without code changes. -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ssm</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+
         <!-- SECURITY VIOLATION: log4j 2.14.1 has critical CVE-2021-44228 (Log4Shell) -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
